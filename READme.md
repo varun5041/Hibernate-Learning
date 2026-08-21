@@ -2,95 +2,292 @@
 
 My notes while learning Hibernate.
 
-![Hibernate Architecture](images/hibernate-architecture.png)
+![Hibernate Architecture](Images/architecture.png)
+
+# Hibernate Learning
+
+A hands-on repository where I am learning **Hibernate ORM with Java** by
+building small projects and experimenting with Hibernate features.
+
+This repository will be updated as I learn and implement new concepts.
+
+------------------------------------------------------------------------
 
 ## What is Hibernate?
 
-Hibernate is a Java ORM (Object-Relational Mapping) tool. It maps Java classes to database tables so you can save/fetch Java objects without writing raw SQL every time.
+Hibernate is an **ORM (Object-Relational Mapping) framework for Java**.
 
-## Why use it?
+It allows Java classes and objects to be mapped with database tables,
+making database operations easier to perform using Java objects.
 
-- Less boilerplate than JDBC
-- No manual mapping of query results to objects
-- Handles transactions and connections for you
-- Built-in caching
+------------------------------------------------------------------------
 
-## How it works (see diagram above)
+## Concepts Learned
 
-1. **Configuration** — reads `hibernate.cfg.xml` (mapping + DB details)
-2. `configure()` → `buildSessionFactory()` → **SessionFactory**
-3. `openSession()` → **Session**
-4. `beginTransaction()` → **Transaction**
-5. Do the operation (save / update / delete / select)
-6. `commit()` (or `rollback()` on error)
-7. Close the session
+### 1. Hibernate Configuration
 
-## Basic Code
+Learned how to configure Hibernate using `hibernate.cfg.xml`.
 
-```java
-SessionFactory factory = new Configuration()
-        .configure("hibernate.cfg.xml")
-        .buildSessionFactory();
+The configuration contains details required for connecting Hibernate
+with the database and setting up the Hibernate environment.
 
-Session session = factory.openSession();
-Transaction tx = session.beginTransaction();
+### 2. Configuration
 
-try {
-    Employee emp = new Employee();
-    emp.setName("Varun");
-    session.save(emp);
+Used Hibernate's `Configuration` class to load the Hibernate
+configuration.
 
-    tx.commit();
-} catch (Exception e) {
-    tx.rollback();
-} finally {
-    session.close();
-}
-
-factory.close();
+``` java
+Configuration config = new Configuration();
+config.configure();
 ```
 
-## Key Terms
+### 3. SessionFactory
 
-| Term | Meaning |
-|---|---|
-| **SessionFactory** | Created once per app, heavyweight, thread-safe |
-| **Session** | Created per request, lightweight, not thread-safe |
-| **Transaction** | A unit of work — commit or rollback |
-| **Transient** | New object, not saved yet |
-| **Persistent** | Attached to a session, changes auto-tracked |
-| **Detached** | Session closed, no longer tracked |
+Learned how to create a `SessionFactory` from the Hibernate
+configuration.
 
-## Basic Entity Mapping
+``` java
+SessionFactory sessionFactory =
+        config.buildSessionFactory();
+```
 
-```java
+A `SessionFactory` is used to create Hibernate `Session` objects.
+
+### 4. Session
+
+Learned how to create a Hibernate `Session`.
+
+``` java
+Session session = sessionFactory.openSession();
+```
+
+The `Session` is used to perform database operations using Hibernate.
+
+### 5. Transaction
+
+Learned how to start and manage a transaction.
+
+``` java
+Transaction transaction =
+        session.beginTransaction();
+```
+
+After a successful operation:
+
+``` java
+transaction.commit();
+```
+
+If an error occurs:
+
+``` java
+transaction.rollback();
+```
+
+------------------------------------------------------------------------
+
+## Entity Mapping
+
+Learned how Java classes can be mapped to database tables using
+Hibernate annotations.
+
+### `@Entity`
+
+Marks a Java class as a Hibernate entity.
+
+``` java
 @Entity
-@Table(name = "employees")
-public class Employee {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "emp_name")
-    private String name;
+public class Student {
 }
 ```
 
-## Querying
+### `@Table`
 
-```java
-// HQL - uses entity/field names, not table/column names
-Query query = session.createQuery("FROM Employee WHERE name = :name");
-query.setParameter("name", "Varun");
-List<Employee> result = query.list();
+Used to specify the database table name.
+
+``` java
+@Entity
+@Table(name = "StudentsTable")
+public class Student {
+}
 ```
 
-## Repo Structure
+### `@Id`
 
-- `FirstHibernateProject/` — first basic Hibernate setup
-- `HibernateSelective/` — notes on selective querying
+Used to specify the primary key.
 
-## References
+``` java
+@Id
+@Column(name = "SID")
+private Integer sid;
+```
 
-- [Hibernate Docs](https://hibernate.org/orm/documentation/)
+### `@Column`
+
+Used to map a Java field to a database column.
+
+``` java
+@Column(name = "SNAME")
+private String sName;
+```
+
+### `@Transient`
+
+Used for a field that should not be persisted in the database.
+
+``` java
+@Transient
+private Integer eage;
+```
+
+------------------------------------------------------------------------
+
+## Persisting an Entity
+
+Learned how to persist an entity using `session.persist()`.
+
+``` java
+Student student = new Student();
+
+student.setSid(1);
+student.setsName("Varun");
+student.setsCity("Mumbai");
+
+session.persist(student);
+```
+
+------------------------------------------------------------------------
+
+## Removing an Entity
+
+Learned how to remove an entity using `session.remove()`.
+
+``` java
+Student st = new Student();
+
+st.setSid(2);
+
+session.remove(st);
+```
+
+------------------------------------------------------------------------
+
+## Exception Handling
+
+Used `try-catch-finally` to handle exceptions during Hibernate
+operations and to commit or rollback transactions depending on whether
+the operation succeeds.
+
+------------------------------------------------------------------------
+
+## Resource Management
+
+Learned to close Hibernate resources after completing database
+operations.
+
+``` java
+session.close();
+sessionFactory.close();
+```
+
+------------------------------------------------------------------------
+
+## Hibernate Flow
+
+``` text
+hibernate.cfg.xml
+       ↓
+Configuration
+       ↓
+SessionFactory
+       ↓
+Session
+       ↓
+Transaction
+       ↓
+Entity Operation
+       ↓
+Commit / Rollback
+       ↓
+Close Session
+       ↓
+Close SessionFactory
+```
+
+------------------------------------------------------------------------
+
+## Projects
+
+### FirstHibernateProject
+
+My first Hibernate project where I learned the basic Hibernate setup,
+entity mapping, and database operations.
+
+**Concepts covered:**
+
+-   Hibernate configuration
+-   `Configuration`
+-   `SessionFactory`
+-   `Session`
+-   `Transaction`
+-   Entity mapping
+-   `session.persist()`
+-   `session.remove()`
+-   Commit and rollback
+-   Exception handling
+
+### HibernateSelective
+
+A practice project containing an `Employee` entity and Hibernate
+persistence.
+
+The entity uses annotations such as:
+
+-   `@Entity`
+-   `@Table`
+-   `@Id`
+-   `@Column`
+-   `@Transient`
+
+------------------------------------------------------------------------
+
+## Technologies Used
+
+-   **Java**
+-   **Hibernate ORM**
+-   **Maven**
+-   **MySQL**
+
+------------------------------------------------------------------------
+
+## Learning Progress
+
+-   [x] Hibernate setup with Maven
+-   [x] MySQL database connection
+-   [x] Hibernate configuration
+-   [x] `Configuration`
+-   [x] `SessionFactory`
+-   [x] `Session`
+-   [x] `Transaction`
+-   [x] Entity mapping
+-   [x] `@Entity`
+-   [x] `@Table`
+-   [x] `@Id`
+-   [x] `@Column`
+-   [x] `@Transient`
+-   [x] `session.persist()`
+-   [x] `session.remove()`
+-   [x] Commit & rollback
+-   [x] Exception handling
+-   [x] Closing Hibernate resources
+
+------------------------------------------------------------------------
+
+## Purpose
+
+This is a **learning repository** where I practice Hibernate concepts by
+writing and experimenting with Java code.
+
+I will continue adding new concepts as I learn them.
+
+**Learning Hibernate step by step 🚀**
