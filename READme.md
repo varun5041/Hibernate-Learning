@@ -2,7 +2,7 @@
 
 My notes while learning Hibernate.
 
-![Hibernate Architecture](images/hibernate-architecture.png)
+![Hibernate Architecture](images/architecture.png)
 
 ## What is Hibernate?
 
