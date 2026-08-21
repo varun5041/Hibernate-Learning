@@ -251,6 +251,80 @@ The entity uses annotations such as:
 
 ------------------------------------------------------------------------
 
+# Hibernate `find()` vs `getReference()`
+
+## 1. `find()`
+
+Used when you need the **actual entity data**.
+
+```java
+Student s = session.find(Student.class, 1);
+```
+
+**Flow:**
+
+```text
+find()
+  ↓
+Fetch data from DB
+  ↓
+Actual Student object
+```
+
+**Use case:** When you want to read or use Student's data.
+
+---
+
+## 2. `getReference()`
+
+Used when you only need a **reference/proxy** to the entity.
+
+```java
+Student s = session.getReference(Student.class, 1);
+```
+
+**Flow:**
+
+```text
+getReference()
+  ↓
+Proxy/reference object
+  ↓
+ID = 1 is known
+  ↓
+State is not initially loaded
+```
+
+If you later access:
+
+```java
+System.out.println(s.getsName());
+```
+
+Hibernate may fetch the actual data from the database.
+
+**Use case:** When you only need to reference an entity, especially for relationships.
+
+---
+
+## Quick Difference
+
+| `find()` | `getReference()` |
+|---|---|
+| Actual data is needed | Only a reference is needed |
+| Entity state is loaded | State is initially not loaded |
+| Directly use entity data | Data may be loaded when accessed |
+
+### Remember
+
+```text
+find()          → "I need the DATA"
+getReference()  → "I need the REFERENCE"
+```
+
+> In older Hibernate tutorials, you may see `load()`. Its proxy/reference concept is related to `getReference()`.
+
+
 ## Technologies Used
 
 -   **Java**
